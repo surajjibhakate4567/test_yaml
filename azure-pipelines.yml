@@ -1,0 +1,30 @@
+trigger:
+- master
+
+prerequisites:
+  - jre18 # Specify the name of the tool in your pipeline variables
+
+jobs:
+- job: Build
+  pool:
+    vmImage: 'windows-latest'
+
+  steps:
+  - task: UseJavaVersion@0
+    inputs:
+      version: '8' # Use Java 8 to download and install the tool
+      jdkFile: 'jdk-18_windows-x64_bin.zip' # Update with the specific JDK 18 file name
+
+  - script: 'mvnw.cmd clean install'
+    displayName: 'Build with Maven'
+    workingDirectory: 'C:\eclipse_workspace\DevopsBasics\DevopsBasics' # Update with the correct path
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      testRunTitle: 'Maven Tests'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'C:\eclipse_workspace\DevopsBasics\DevopsBasics\target' # Update with the correct path
+      artifactName: 'drop'
